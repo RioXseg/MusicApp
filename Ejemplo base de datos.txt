@@ -1,0 +1,57 @@
+package com.example.sergi.musicapp;
+
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.widget.TextView;
+import com.example.sergi.musicapp.Database;
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        //seteo de los componentes
+        TextView textView = (TextView) findViewById(R.id.textView);
+
+        //Anadimos un dato de prueba a la base de datos
+        Database database = new Database(this, Database.DATABASE_NAME, null, Database.DATABASE_VERSION);
+        SQLiteDatabase db = database.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(Database.tablaMusica.column_fileName, "01.mp3");
+        values.put(Database.tablaMusica.column_songName, "Pokemon - Gotta catch'em all");
+
+        db.insert(Database.tablaMusica.tableName, null, values);
+
+        //Leemos un dato de la base de datos como prueba
+        SQLiteDatabase db2 = database.getReadableDatabase();
+        Cursor cursor = db2.query(
+                Database.tablaMusica.tableName,
+                new String[]{Database.tablaMusica._ID, Database.tablaMusica.column_fileName, Database.tablaMusica.column_songName},
+                Database.tablaMusica.column_fileName + " = ?",
+                new String[]{"01.mp3"},
+                null,
+                null,
+                null
+        );
+
+        cursor.moveToNext();
+
+        String filename = cursor.getString(cursor.getColumnIndex(Database.tablaMusica.column_fileName));
+        String songname = cursor.getString(cursor.getColumnIndex(Database.tablaMusica.column_songName));
+        String id = cursor.getString(cursor.getColumnIndex(Database.tablaMusica._ID));
+
+        cursor.close();
+
+        textView.setText("filename: " + filename + " songname: " + songname + " id: " + id);
+
+    }
+
+
+}
